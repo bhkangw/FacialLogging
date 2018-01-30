@@ -16,5 +16,5 @@ export const routes = (app: express.Express) => {
     app.get('/api/logout', (req, res) => LoginRegController.clearSessionFor(req, res, '_id'));
 
     // Base route and serves frontend
-    app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../../client/WebApp/dist/index.html')));
+    app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../../../client/WebApp/dist/index.html')));
 };

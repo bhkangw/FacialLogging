@@ -12,7 +12,7 @@ const server = express();
 server.use(bp.json());
 
 // initializes server static folder path to where the angular app builds 
-server.use(express.static(path.join(__dirname, './../../client/WebApp/dist')));
+server.use(express.static(path.join(__dirname, './../../../client/WebApp/dist')));
 
 // initializes the servers session type through the express-session middleware  
 server.use(session({

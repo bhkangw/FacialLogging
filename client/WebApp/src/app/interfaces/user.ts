@@ -3,5 +3,6 @@
  * base implementation of IUser
  */
 export interface IUser {
-    name: String;
+    name: string;
+    message?: string;
 }

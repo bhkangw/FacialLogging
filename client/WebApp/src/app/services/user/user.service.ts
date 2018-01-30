@@ -36,6 +36,11 @@ export class UserService {
     });
   }
 
+  submitUser(user: IUser, formData, callback: (res: IServerMessage<IUser>) => void): void {
+    const uri = this._localAPIBuild('submit-user');
+    // this._http.post(uri, user, formData).subscribe((response: IServerMessage<{ message: string }>) => callback(response));
+  }
+
   /**
    * queries the backend if the user is currently logged in or not
    * @param {callback: (res: IServerMessage)} callback callback to run after backend response

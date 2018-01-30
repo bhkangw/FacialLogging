@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { WebCamModule, WebCamComponent } from 'ack-angular-webcam'; // importing ack-webcam 
 
 // COMPONENTS
 import { AppComponent } from './app.component';
@@ -14,6 +15,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 // PROVIDERS
 import { UserService } from './services/user/user.service';
+import { HttpModule } from '@angular/http';
 
 @NgModule({
   declarations: [
@@ -21,13 +23,15 @@ import { UserService } from './services/user/user.service';
     LoginComponent,
     RegistrationComponent,
     LogRegComponent,
-    DashboardComponent
-  ],
+    DashboardComponent,
+    ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    HttpModule,
+    FormsModule,
+    WebCamModule // ack-webcam
   ],
   providers: [UserService],
   bootstrap: [AppComponent]
