@@ -54,7 +54,7 @@ export const LoginRegController = {
     /**
      * registers a user
      */
-    registerUser: (req: express.Request, res: express.Response) => {
+    addUser: (req: express.Request, res: express.Response) => {
         const user = new models.User(req.body);
         LoginRegController.hasType('email', req.body.email, (success) => {
 
@@ -71,33 +71,13 @@ export const LoginRegController = {
                     }
                 });
             } else {
-                res.json(new ServerMessage(false, {message: 'email already exists'}));
+                res.json(new ServerMessage(false, { message: 'email already exists' }));
             }
         });
     },
 
-    /**
-     * logs in or rejects a given login attempt
-     */
-    loginUser: (req: express.Request, res: express.Response) => {
-        models.User.findOne({ email: req.body.email }, (err, data) => {
+    verifyUser: (req: express.Request, res: express.Response) => {
 
-            // if the user was found, check the passwords and return a
-            // server message. True will save in session, false with only send 
-            // a ServerMessage instance
-            if (data) {
-                const passwordCompare = data.password;
-                data.password = '';
-                if (passwordCompare === req.body.password) {
-                    req.session._id = data._id;
-                    res.json(new ServerMessage(true, data));
-                } else {
-                    res.json(new ServerMessage(false, {message: 'the information provided is invalid'}));
-                }
-            } else {
-                res.json(new ServerMessage(false, {message: 'the information provided is invalid'}));
-            }
-        });
     },
 
     /**
