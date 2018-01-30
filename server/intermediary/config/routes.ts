@@ -41,8 +41,10 @@ export const routes = (app: express.Express) => {
     app.post('/api/exp/ml/verify', (req, res) => LoginRegController.verifyUser(req, res));
     app.get('/api/exp/logout', (req, res) => LoginRegController.clearSessionFor(req, res, '_id'));
 
-    app.post('/test/img', upload.single('img'), (req: ITester, res) => TestController.uploadImg(req, res));
 
+    app.post('/api/testing', (req, res) => TestController.showJson(req, res));
+    app.post('/test/img', upload.single('img'), (req: ITester, res) => TestController.uploadImg(req, res));
+    app.get('/test/img/:id', (req, res) => TestController.getImg(req, res));
     // Base route and serves frontend
     app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../../../client/WebApp/dist/index.html')));
 };

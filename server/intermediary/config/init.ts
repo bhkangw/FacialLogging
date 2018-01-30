@@ -18,7 +18,7 @@ server.use((req, res, next) => {
 });
 
 // initializes server to access json body data
-server.use(bp.json());
+server.use(bp.json({limit: '50mb'}));
 
 // initializes server static folder path to where the angular app builds 
 server.use(express.static(path.join(__dirname, './../../../client/WebApp/dist')));

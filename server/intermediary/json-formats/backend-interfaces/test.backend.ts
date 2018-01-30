@@ -1,3 +1,5 @@
+import * as mongoose from 'mongoose';
+
 export interface ITest {
-    img: any;
+    data: string;
 }

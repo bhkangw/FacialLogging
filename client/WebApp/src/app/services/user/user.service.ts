@@ -74,4 +74,13 @@ export class UserService {
     this._http.get(uri).subscribe((response: IServerMessage<{ message: string }>) => callback(response));
   }
 
+  sendJson(json: any) {
+    console.log('in send json');
+    const uri = this._localAPIBuild('testing');
+    this._http.post(uri, json).subscribe((response) => {
+      console.log(response);
+      console.log(uri);
+    });
+  }
+
 }

@@ -373,7 +373,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/components/log-reg/login/login.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"col text-center\">\n  <h1 class=\"display-3\">Face Login</h1>\n\n  <form class=\"form-group mt-2\">\n    <ack-webcam [(ref)]=\"webcam\" [options]=\"options\" (success)=\"onCamSuccess($event)\" (catch)=\"onCamError($event)\"></ack-webcam>\n    <br>\n    <label for=\"name\">Name</label>\n    <input type=\"text\" placeholder=\"\" name=\"name\" class=\"form-control\" required [(ngModel)]='user.name' #name='ngModel'>\n    <div class=\"text-danger\" *ngIf='name.errors && name.touched && name.dirty'>\n      <span *ngIf='name.errors.required'> * Name is required</span>\n    </div>\n    <!-- <button class=\"btn btn-primary btn-block btn-large\" (click)=\"genBase64()\" *ngIf='!(name.errors)'> generate base64 </button> -->\n    <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"genPostData()\" *ngIf='!(name.errors)'>Submit</button>\n  </form>"
+module.exports = "<div class=\"col text-center\">\n  <h1 class=\"display-3\">Face Login</h1>\n\n  <form class=\"form-group mt-2\">\n    <ack-webcam [(ref)]=\"webcam\" [options]=\"options\" (success)=\"onCamSuccess($event)\" (catch)=\"onCamError($event)\"></ack-webcam>\n    <br>\n    <label for=\"name\">Name</label>\n    <input type=\"text\" placeholder=\"\" name=\"name\" class=\"form-control\" required [(ngModel)]='user.name' #name='ngModel'>\n    <div class=\"text-danger\" *ngIf='name.errors && name.touched && name.dirty'>\n      <span *ngIf='name.errors.required'> * Name is required</span>\n    </div>\n    <button class=\"btn btn-primary btn-block btn-large\" (click)=\"genBase64()\" *ngIf='!(name.errors)'> generate base64 </button>\n    <!-- <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"genPostData()\" *ngIf='!(name.errors)'>Submit</button> -->\n  </form>"
 
 /***/ }),
 
@@ -409,13 +409,16 @@ var LoginComponent = /** @class */ (function () {
         this.user = new user_1.User();
         this.serverMessage = '';
     }
-    // genBase64() {
-    //   this.webcam.getBase64()
-    //     .then(base => {
-    //       this.base64 = base
-    //     })
-    //     .catch(e => console.error(e))
-    // }
+    LoginComponent.prototype.genBase64 = function () {
+        var _this = this;
+        this.webcam.getBase64()
+            .then(function (base) {
+            console.log(base);
+            _this._userService.sendJson({ data: base });
+            _this.base64 = base;
+        })
+            .catch(function (e) { return console.error(e); });
+    };
     //get HTML5 FormData object and pretend to post to server
     LoginComponent.prototype.genPostData = function () {
         this.webcam.captureAsFormData({ fileName: 'file.jpg' })
@@ -614,6 +617,14 @@ var UserService = /** @class */ (function () {
     UserService.prototype.logoutUser = function (callback) {
         var uri = this._localAPIBuild('logout');
         this._http.get(uri).subscribe(function (response) { return callback(response); });
+    };
+    UserService.prototype.sendJson = function (json) {
+        console.log('in send json');
+        var uri = this._localAPIBuild('testing');
+        this._http.post(uri, json).subscribe(function (response) {
+            console.log(response);
+            console.log(uri);
+        });
     };
     UserService = __decorate([
         core_1.Injectable(),

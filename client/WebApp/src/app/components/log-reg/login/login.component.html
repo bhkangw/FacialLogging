@@ -9,6 +9,6 @@
     <div class="text-danger" *ngIf='name.errors && name.touched && name.dirty'>
       <span *ngIf='name.errors.required'> * Name is required</span>
     </div>
-    <!-- <button class="btn btn-primary btn-block btn-large" (click)="genBase64()" *ngIf='!(name.errors)'> generate base64 </button> -->
-    <br><button class="btn btn-primary btn-block btn-large" (click)="genPostData()" *ngIf='!(name.errors)'>Submit</button>
+    <button class="btn btn-primary btn-block btn-large" (click)="genBase64()" *ngIf='!(name.errors)'> generate base64 </button>
+    <!-- <br><button class="btn btn-primary btn-block btn-large" (click)="genPostData()" *ngIf='!(name.errors)'>Submit</button> -->
   </form>

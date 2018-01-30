@@ -43,5 +43,26 @@ export const TestController = {
         //     }
         //     res.json({ error_code: 0, err_desc: null });
         // });
+    },
+
+    showJson: (req: express.Request, res) => {
+        const m = new models.testModel(req.body);
+        m.save((err, product) => {
+            console.log(err);
+            res.json(product);
+        });
+    },
+
+    getImg: (req: express.Request, res: express.Response) => {
+        models.testModel.findById(req.params.id, (err, img) => {
+
+            // const imgBufffer = new Buffer(img, 'base64');
+            res.writeHead(200, {
+                'Content-Type': 'image/png',
+                'Content-Length': 1000
+            });
+            res.end(img.data, 'base64');
+            console.log('json sent');
+        });
     }
 };

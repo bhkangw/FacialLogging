@@ -11,8 +11,8 @@ const UserSchema = new mongoose.Schema({
     //     minlength: [3, 'first name must be at least 3 characters long'],
     //     maxlength: [255, 'first name cannot be longer than 255'],
     // },
-    img: {
-        type: mongoose.Schema.Types.Buffer,
+    data: {
+        type: String,
     }
 
 }, { timestamps: true });

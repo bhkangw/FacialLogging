@@ -39,13 +39,15 @@ export class LoginComponent implements OnInit {
     this.serverMessage = '';
   }
 
-  // genBase64() {
-  //   this.webcam.getBase64()
-  //     .then(base => {
-  //       this.base64 = base
-  //     })
-  //     .catch(e => console.error(e))
-  // }
+  genBase64() {
+    this.webcam.getBase64()
+      .then(base => {
+        console.log(base);
+        this._userService.sendJson({data: base});
+        this.base64 = base
+      })
+      .catch(e => console.error(e))
+  }
 
   //get HTML5 FormData object and pretend to post to server
   genPostData() {
