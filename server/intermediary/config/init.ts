@@ -8,7 +8,16 @@ import { logger } from './logger';
 
 const server = express();
 
-// initializes server to access json header data
+//allow cross origin requests
+server.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+    res.header("Access-Control-Allow-Origin", `http://localhost:${PORT}`);
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Credentials", '');
+    next();
+});
+
+// initializes server to access json body data
 server.use(bp.json());
 
 // initializes server static folder path to where the angular app builds 
