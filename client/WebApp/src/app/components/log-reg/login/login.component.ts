@@ -45,11 +45,22 @@ export class LoginComponent implements OnInit {
   submitName() {
     console.log(this.user)
     this._userService.submitName(this.user, (res) => {
-      if (res) {
-
-      }
-      else {
-
+      const loginContainer = new LoginContainer();
+      loginContainer.name = this.user.name;
+      if (res.success) {
+        this.getImages(5, (images) => {
+          loginContainer.images = images;
+          this._userService.verifyUser(loginContainer, (res) => {
+            console.log('verified', JSON.stringify(res, null, 4));
+          });
+        })
+      } else {
+        this.getImages(25, (images) => {
+          loginContainer.images = images;
+          this._userService.newUser(loginContainer, (res) => {
+            console.log('verified', JSON.stringify(res, null, 4));
+          });
+        })
       }
     })
   }
@@ -59,7 +70,7 @@ export class LoginComponent implements OnInit {
     this.webcam.getBase64().then(base => {
       callback(base);
     }).catch((err) => {
-      throw err
+      throw err;
     });
   }
 
@@ -68,10 +79,9 @@ export class LoginComponent implements OnInit {
     const id = setInterval(() => {
       this._getBase64((base) => {
         if (size <= 0) {
-          // console.log(a.length);
           clearInterval(id);
           callback(a);
-        }else{
+        } else {
           size--;
           a.push(base);
         }

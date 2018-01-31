@@ -10,6 +10,7 @@ import { User } from '../../classes/user';
 
 // SERVICE DEPENDENCIES
 import * as uriBuilder from 'build-url';
+import { ILoginContainer } from '../../interfaces/login-container';
 
 /**
  * User Service class is used to do api classes to the backend
@@ -53,15 +54,23 @@ export class UserService {
   submitName(user: IUser, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`find-user/${user.name}`);
     this._http.get(uri).subscribe((response: IServerMessage<IUser>) => {
-      if (response.success) { // verify user
-        const uri = this._localAPIBuild("verify");
-      }
-      else { // add new user
-        const uri = this._localAPIBuild("add-user");
-      }
-    })
+      callback(response);
+    });
   }
 
+  verifyUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
+    const uri = this._localAPIBuild(`verify`);
+    this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
+
+    });
+  }
+
+  newUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
+    const uri = this._localAPIBuild(`add-user`);
+    this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
+
+    });
+  }
 
 
 
