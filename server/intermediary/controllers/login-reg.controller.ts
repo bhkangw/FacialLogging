@@ -72,8 +72,6 @@ export const LoginRegController = {
         container.images = req.body.images;
         HttpClient.post('http://192.168.1.192:1234/api/ml/build', { form: container }, (err, response, body) => {
             body = JSON.parse(body);
-            console.log('got body', body.modelYML);
-            console.log(JSON.stringify(response, null, 4));
             const newUser = new models.User({ modelYML: body.modelYML, name: req.body.name });
             newUser.save((err, product) => {
                 if (err) {
@@ -89,14 +87,15 @@ export const LoginRegController = {
 
     verifyUser: (req: express.Request, res: express.Response) => {
         const attemptsContainer: IImageContainer = req.body.images;
-        models.User.findOne({ name: req.params.name }, (err, user) => {
-            HttpClient.post('http://192.168.192:1234/api/ml/verify', {
+        models.User.findOne({ name: req.body.name }, (err, user) => {
+            HttpClient.post('http://192.168.1.192:1234/api/ml/verify', {
                 form: {
                     images: attemptsContainer,
                     modelYML: user.modelYML
                 }
             }, (err, response, body) => {
                 body = JSON.parse(body);
+                console.log(body);
                 res.json(new ServerMessage(body.success, null));
             });
         });
