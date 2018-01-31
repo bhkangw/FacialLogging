@@ -5,6 +5,7 @@
 # Import OpenCV2 for image processing
 import cv2
 
+
 # Start capturing video 
 vid_cam = cv2.VideoCapture(0)
 
