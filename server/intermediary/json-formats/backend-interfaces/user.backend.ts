@@ -11,4 +11,5 @@ export class User implements IUser {
  */
 export interface IUser {
     name: string;
+    modelYML?: string;
 }
