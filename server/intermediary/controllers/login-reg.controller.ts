@@ -10,6 +10,10 @@ import { IUser, User } from '../json-formats/backend-interfaces/user.backend';
 // MONGO INTERFACES
 import { IUserModel } from '../json-formats/mongo-interfaces/user.mongo';
 
+
+import * as jquery from 'jquery';
+import { IImageContainer } from '../json-formats/backend-interfaces/image-container.backend';
+
 // wraps all currently used models in a quick lookup object
 const models = {
     User: mongoose.model<IUserModel>('user')
@@ -39,6 +43,16 @@ export const LoginRegController = {
         });
     },
 
+    findUser: (req: express.Request, res: express.Response) => {
+        models.User.findOne({ name: req.params.name }, (err, user) => {
+            if (user) {
+                res.json(new ServerMessage(true, user));
+            } else {
+                res.json(new ServerMessage(false, user));
+            }
+        });
+    },
+
     /**
      * checks session for a given values
      * @param value value to check
@@ -55,29 +69,37 @@ export const LoginRegController = {
      * registers a user
      */
     addUser: (req: express.Request, res: express.Response) => {
-        const user = new models.User(req.body);
-        LoginRegController.hasType('email', req.body.email, (success) => {
-
-            // if the hasType method does not return success, this means that the database does
-            // not contain a user with the given info. If so, have the entered user data
-            // validated and saved to the database
-            if (!success) {
-                user.save((err, product) => {
+        const container: IImageContainer = req.body.images;
+        jquery.ajax({
+            type: 'POST',
+            url: 'localhost:5555/api/ml/build',
+            data: container,
+            success: (model) => {
+                const newUser = new models.User({ modelYML: model, name: req.body.name });
+                newUser.save((err, product) => {
                     if (err) {
-                        res.json(new ServerMessage(false, product));
+                        res.json(new ServerMessage(false, err));
+                        throw err;
                     } else {
-                        req.session._id = product._id;
                         res.json(new ServerMessage(true, product));
                     }
                 });
-            } else {
-                res.json(new ServerMessage(false, { message: 'email already exists' }));
             }
         });
     },
 
     verifyUser: (req: express.Request, res: express.Response) => {
-
+        const attemptsContainer: IImageContainer = req.body.images;
+        models.User.findOne({ name: req.params.name }, (err, user) => {
+            jquery.ajax({
+                type: 'POST',
+                url: 'localhost:5555/api/ml/verify',
+                data: { modelYML: user.modelYML, attempts: attemptsContainer },
+                success: (bool) => {
+                    res.json(new ServerMessage(bool.success, null));
+                }
+            });
+        })
     },
 
     /**
