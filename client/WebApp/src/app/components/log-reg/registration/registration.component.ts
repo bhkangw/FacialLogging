@@ -27,17 +27,17 @@ export class RegistrationComponent implements OnInit {
   ngOnInit() {
   }
 
-  registerUser() {
-    this._userService.registerUser(this.user, (res) => {
+  // registerUser() {
+  //   this._userService.registerUser(this.user, (res) => {
 
-      // if registration went successfully continue to dashboard
-      // else display the message the server gave
-      if (res.success) {
-        this._router.navigateByUrl('/dashboard');
-      } else if (res.output.message) {
-        this.serverMessage = res.output.message;
-      }
-    });
-  }
+  //     // if registration went successfully continue to dashboard
+  //     // else display the message the server gave
+  //     if (res.success) {
+  //       this._router.navigateByUrl('/dashboard');
+  //     } else if (res.output.message) {
+  //       this.serverMessage = res.output.message;
+  //     }
+  //   });
+  // }
 
 }

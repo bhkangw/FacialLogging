@@ -4,5 +4,6 @@
  */
 export interface IUser {
     name: string;
+    model?: string;
     message?: string;
 }
