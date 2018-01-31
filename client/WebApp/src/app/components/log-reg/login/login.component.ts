@@ -12,6 +12,7 @@ import { User } from '../../../classes/user';
 import { IUser } from '../../../interfaces/user';
 import { setInterval, clearInterval } from 'timers';
 import { LoginContainer } from '../../../classes/login-container';
+import { IServerMessage } from '../../../interfaces/server-message';
 
 const template = `
 <ack-webcam
@@ -31,7 +32,7 @@ const template = `
 })
 export class LoginComponent implements OnInit {
 
-  webcam: WebCamComponent // will be populated by <ack-webcam [(ref)]="webcam">
+  webcam: WebCamComponent; // will be populated by <ack-webcam [(ref)]="webcam">
   base64: string;
   user: IUser;
   serverMessage: string;
@@ -43,26 +44,25 @@ export class LoginComponent implements OnInit {
   }
 
   submitName() {
-    console.log(this.user)
     this._userService.submitName(this.user, (res) => {
       const loginContainer = new LoginContainer();
       loginContainer.name = this.user.name;
       if (res.success) {
         this.getImages(5, (images) => {
           loginContainer.images = images;
-          this._userService.verifyUser(loginContainer, (res) => {
+          this._userService.verifyUser(loginContainer, (data: IServerMessage<IUser>) => {
             console.log('verified', JSON.stringify(res, null, 4));
           });
         })
       } else {
         this.getImages(25, (images) => {
           loginContainer.images = images;
-          this._userService.newUser(loginContainer, (res) => {
+          this._userService.newUser(loginContainer, (data) => {
             console.log('verified', JSON.stringify(res, null, 4));
           });
-        })
+        });
       }
-    })
+    });
   }
 
 
