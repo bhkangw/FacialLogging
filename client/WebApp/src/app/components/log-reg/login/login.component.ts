@@ -53,26 +53,18 @@ export class LoginComponent implements OnInit {
       if (res.success) {
         this.getImages(5, (images) => { // if successful send 5 images for verification
           loginContainer.images = images;
-<<<<<<< HEAD
-          this._userService.verifyUser(loginContainer, (data: IServerMessage<IUser>) => {
-=======
           this._userService.verifyUser(loginContainer, (res) => {
             this._router.navigate(['dashboard']);
->>>>>>> 95e48bcc3a8bffb063103773b0a6ca8e6cef49dc
             console.log('verified', JSON.stringify(res, null, 4));
           });
         })
       } else {
         this.getImages(25, (images) => { // if unsuccessful send 25 images to add new user
           loginContainer.images = images;
-<<<<<<< HEAD
-          this._userService.newUser(loginContainer, (data) => {
-=======
           this._userService.newUser(loginContainer, (res) => {
             if(res.success){
               this._router.navigate(['dashboard']);
             }
->>>>>>> 95e48bcc3a8bffb063103773b0a6ca8e6cef49dc
             console.log('verified', JSON.stringify(res, null, 4));
           });
         });
