@@ -86,7 +86,7 @@ def makeYML():
     for image in images:
         processImage = processBase64String(image)
         id =1
-        print(processImage)
+        #print(processImage)
         # Get the face from the training images
         faces = detector.detectMultiScale(processImage,1.2,8)
 
@@ -120,6 +120,7 @@ def makeYML():
 
 @app.route('/api/ml/verify', methods=['POST'])
 def verifyUser():
+    print('in verify')
     # get trainer model from json and overwrite current:
     with open('trainer/trainer.yml','wt') as in_file:
         in_file.write(request.form['modelYML'])
@@ -131,7 +132,7 @@ def verifyUser():
 
     # set up success counter
     counter = 0
-    trials = 0
+    trials = 0.0
 
     # define success - starts as False
     success = False
@@ -146,20 +147,22 @@ def verifyUser():
         for (x,y,w,h) in faces:
 
            # Recognize the face belongs to which ID
-            Id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+            Id, confidence = recognizer.predict(processImage[y:y+h,x:x+w])
             print(Id)
             print(confidence)
 
         # only if we have a certain degree of confidence we add to avlidation counter
-        if confidence < 200:
+        if confidence < 50:
             counter = counter+1
-        trials = trials + 1.0
+        trials = trials + 1
     
     # if 3 out of 5 images are identified as user success is True
     if counter/trials >= 0.6:
-        succes =True
+        success =True
+    print(success)
 
-    return jsonify({'Success': success})
+
+    return jsonify({'success': success})
 
 
 
