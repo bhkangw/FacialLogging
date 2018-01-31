@@ -2,17 +2,16 @@
 // DEPENDENCIES
 import * as mongoose from 'mongoose';
 import * as express from 'express';
+import * as HttpClient from 'request';
 
 // BACKEND INTERFACES
 import { ServerMessage, IServerMessage } from './../json-formats/backend-interfaces/server-message.backend';
 import { IUser, User } from '../json-formats/backend-interfaces/user.backend';
+import { IImageContainer, ImageContainer } from '../json-formats/backend-interfaces/image-container.backend';
 
 // MONGO INTERFACES
 import { IUserModel } from '../json-formats/mongo-interfaces/user.mongo';
 
-
-import * as jquery from 'jquery';
-import { IImageContainer } from '../json-formats/backend-interfaces/image-container.backend';
 
 // wraps all currently used models in a quick lookup object
 const models = {
@@ -69,37 +68,38 @@ export const LoginRegController = {
      * registers a user
      */
     addUser: (req: express.Request, res: express.Response) => {
-        const container: IImageContainer = req.body.images;
-        jquery.ajax({
-            type: 'POST',
-            url: 'localhost:5555/api/ml/build',
-            data: container,
-            success: (model) => {
-                const newUser = new models.User({ modelYML: model, name: req.body.name });
-                newUser.save((err, product) => {
-                    if (err) {
-                        res.json(new ServerMessage(false, err));
-                        throw err;
-                    } else {
-                        res.json(new ServerMessage(true, product));
-                    }
-                });
-            }
+        const container: IImageContainer = new ImageContainer();
+        container.images = req.body.images;
+        HttpClient.post('http://192.168.1.192:1234/api/ml/build', { form: container }, (err, response, body) => {
+            body = JSON.parse(body);
+            console.log('got body', body.modelYML);
+            console.log(JSON.stringify(response, null, 4));
+            const newUser = new models.User({ modelYML: body.modelYML, name: req.body.name });
+            newUser.save((err, product) => {
+                if (err) {
+                    res.json(new ServerMessage(false, err));
+                    throw err;
+                } else {
+                    req.session._id = product._id;
+                    res.json(new ServerMessage(true, product));
+                }
+            });
         });
     },
 
     verifyUser: (req: express.Request, res: express.Response) => {
         const attemptsContainer: IImageContainer = req.body.images;
         models.User.findOne({ name: req.params.name }, (err, user) => {
-            jquery.ajax({
-                type: 'POST',
-                url: 'localhost:5555/api/ml/verify',
-                data: { modelYML: user.modelYML, attempts: attemptsContainer },
-                success: (bool) => {
-                    res.json(new ServerMessage(bool.success, null));
+            HttpClient.post('http://192.168.192:1234/api/ml/verify', {
+                form: {
+                    images: attemptsContainer,
+                    modelYML: user.modelYML
                 }
+            }, (err, response, body) => {
+                body = JSON.parse(body);
+                res.json(new ServerMessage(body.success, null));
             });
-        })
+        });
     },
 
     /**

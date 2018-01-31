@@ -6,7 +6,7 @@ import * as path from 'path';
 
 // connects to mongodb's host route for queries to
 // the given database
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/facelogging');
 
 // for loops through the models directory and adds
 // each file of a model to this mongoose.ts file
