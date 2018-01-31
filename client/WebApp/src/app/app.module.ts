@@ -9,7 +9,6 @@ import { WebCamModule, WebCamComponent } from 'ack-angular-webcam'; // importing
 // COMPONENTS
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/log-reg/login/login.component';
-import { RegistrationComponent } from './components/log-reg/registration/registration.component';
 import { LogRegComponent } from './components/log-reg/log-reg.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 
@@ -21,7 +20,6 @@ import { HttpModule } from '@angular/http';
   declarations: [
     AppComponent,
     LoginComponent,
-    RegistrationComponent,
     LogRegComponent,
     DashboardComponent,
     ],
