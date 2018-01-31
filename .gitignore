@@ -10,6 +10,9 @@
 /client/WebApp/node_modules
 /server/intermediary/node_modules
 
+# datasets
+/server/ml/dataset
+
 # IDEs and editors
 /.idea
 .project
