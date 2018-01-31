@@ -51,9 +51,9 @@ while True:
         # Check the ID if exist 
         print(Id)
         print(confidence)
-        if Id == 1 and confidence < 35:
+        if Id == 1 and confidence < 40:
             Id = "Ale"
-        elif Id == 2 and confidence < 35:
+        elif Id == 2 and confidence < 40:
             Id = "Brian"
         elif Id==3 and confidence < 35:
             Id="Emil"
