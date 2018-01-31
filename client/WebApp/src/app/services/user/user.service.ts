@@ -51,6 +51,11 @@ export class UserService {
     this._http.get(uri).subscribe((response: IServerMessage<{ message: string }>) => callback(response));
   }
 
+  /**
+   * submits a name to the backend
+   * @param user user data to be sent to the backend
+   * @param callback callback passes backend results
+   */
   submitName(user: IUser, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`find-user/${user.name}`);
     this._http.get(uri).subscribe((response: IServerMessage<IUser>) => {
@@ -58,58 +63,27 @@ export class UserService {
     });
   }
 
+  /**
+   * verifies a user to the backend
+   * @param container user name and images array to be sent to the backend
+   * @param callback call passes backend results
+   */
   verifyUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`verify`);
     this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
 
     });
   }
-
+  /**
+   * adds a new user to the backend
+   * @param container user name and images array to be sent to the backend
+   * @param callback call passes backend results
+   */
   newUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`add-user`);
     this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
 
     });
   }
-
-
-
-
-
-
-
-
-  // submitUser(user: IUser, formData, callback: (res: IServerMessage<IUser>) => void): void {
-  //   const uri = this._localAPIBuild('submit-user');
-  //   // this._http.post(uri, user, formData).subscribe((response: IServerMessage<{ message: string }>) => callback(response));
-  // }
-
-  // /**
-  //  * register a user to the database
-  //  * @param {IUser} user user data to attempt to add to the database
-  //  */
-  // registerUser(user: IUser, callback: (res: IServerMessage<IUser>) => void): void {
-  //   const uri = this._localAPIBuild('register');
-  //   this._http.post(uri, user).subscribe((response: IServerMessage<IUser>) => callback(response));
-  // }
-
-  // /**
-  //  * login a user to the database
-  //  * @param user user data to attempt login
-  //  * @param callback processing to be done after backend response
-  //  */
-  // loginUser(user: IUser, callback: (res: IServerMessage<IUser>) => void): void {
-  //   const uri = this._localAPIBuild('login');
-  //   this._http.post(uri, user).subscribe((response: IServerMessage<IUser>) => callback(response));
-  // }
-
-  // sendJson(json: any) {
-  //   console.log('in send json');
-  //   const uri = this._localAPIBuild('testing');
-  //   this._http.post(uri, json).subscribe((response) => {
-  //     console.log(response);
-  //     console.log(uri);
-  //   });
-  // }
 
 }

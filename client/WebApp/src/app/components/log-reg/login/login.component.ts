@@ -43,21 +43,36 @@ export class LoginComponent implements OnInit {
     this.count = 0;
   }
 
+  /**
+   * when a user submits their name, return success or unsuccessful if found
+   */
   submitName() {
     this._userService.submitName(this.user, (res) => {
       const loginContainer = new LoginContainer();
       loginContainer.name = this.user.name;
       if (res.success) {
-        this.getImages(5, (images) => {
+        this.getImages(5, (images) => { // if successful send 5 images for verification
           loginContainer.images = images;
+<<<<<<< HEAD
           this._userService.verifyUser(loginContainer, (data: IServerMessage<IUser>) => {
+=======
+          this._userService.verifyUser(loginContainer, (res) => {
+            this._router.navigate(['dashboard']);
+>>>>>>> 95e48bcc3a8bffb063103773b0a6ca8e6cef49dc
             console.log('verified', JSON.stringify(res, null, 4));
           });
         })
       } else {
-        this.getImages(25, (images) => {
+        this.getImages(25, (images) => { // if unsuccessful send 25 images to add new user
           loginContainer.images = images;
+<<<<<<< HEAD
           this._userService.newUser(loginContainer, (data) => {
+=======
+          this._userService.newUser(loginContainer, (res) => {
+            if(res.success){
+              this._router.navigate(['dashboard']);
+            }
+>>>>>>> 95e48bcc3a8bffb063103773b0a6ca8e6cef49dc
             console.log('verified', JSON.stringify(res, null, 4));
           });
         });
@@ -65,7 +80,10 @@ export class LoginComponent implements OnInit {
     });
   }
 
-
+  /**
+   * generate base64 string from webcam image
+   * @param callback get a single base64 image
+   */
   private _getBase64(callback: (base: string) => void): void {
     this.webcam.getBase64().then(base => {
       callback(base);
@@ -74,6 +92,11 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  /**
+   * take x number of photos at x interval and push base64 strings into images array
+   * @param size number of photos to take
+   * @param callback get array of photos
+   */
   getImages(size: number, callback: (images: Array<string>) => void): void {
     let a = [];
     const id = setInterval(() => {
@@ -89,52 +112,11 @@ export class LoginComponent implements OnInit {
     }, 200);
   }
 
-  genBase64() {
-    const loginData = new LoginContainer();
-    loginData.name = this.user.name;
-    this.getImages(10, (images) => {
-      loginData.images = images;
-    });
-  }
-
-  // genBase64() {
-  //   this.webcam.getBase64()
-  //     .then(base => {
-  //       console.log(base);
-  //       // this._userService.sendJson({data: base});
-  //       this.base64 = base
-  //     })
-  //     .catch(e => console.error(e))
-  // }
-
-  //get HTML5 FormData object and pretend to post to server
-  genPostData() {
-    this.webcam.captureAsFormData({ fileName: 'file.jpg' })
-      .then(formData => {
-        // this._userService.submitUser(user, formData, () => {})
-      })
-      .catch(e => console.error(e))
-    console.log("going through genPostData") // test
-  }
-
   onCamError(err) { }
 
   onCamSuccess() { }
 
   ngOnInit() {
   }
-
-  // login() {
-  //   this._userService.loginUser(this.user, (res) => {
-
-  //     // if the login was successful continue to the dashboard
-  //     // else display the response the backend gave
-  //     if (res.success) {
-  //       this._router.navigate(['dashboard']);
-  //     } else {
-  //       this.serverMessage = res.output.message;
-  //     }
-  //   });
-  // }
 
 }
