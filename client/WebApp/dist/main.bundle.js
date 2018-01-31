@@ -373,7 +373,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/components/log-reg/login/login.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"col text-center\">\n  <h1 class=\"display-3\">Face Login</h1>\n\n  <form class=\"form-group mt-2\">\n    <ack-webcam [(ref)]=\"webcam\" [options]=\"options\" (success)=\"onCamSuccess($event)\" (catch)=\"onCamError($event)\"></ack-webcam>\n    <br>\n    <label for=\"name\">Name</label>\n    <input type=\"text\" placeholder=\"\" name=\"name\" class=\"form-control\" required [(ngModel)]='user.name' #name='ngModel'>\n    <div class=\"text-danger\" *ngIf='name.errors && name.touched && name.dirty'>\n      <span *ngIf='name.errors.required'> * Name is required</span>\n    </div>\n    <button class=\"btn btn-primary btn-block btn-large\" (click)=\"genBase64()\" *ngIf='!(name.errors)'> generate base64 </button>\n    <!-- <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"genPostData()\" *ngIf='!(name.errors)'>Submit</button> -->\n  </form>"
+module.exports = "<div class=\"col text-center\">\n  <h1 class=\"display-3\">Face Login</h1>\n\n  <form class=\"form-group mt-2\">\n    <ack-webcam [(ref)]=\"webcam\" [options]=\"options\" (success)=\"onCamSuccess($event)\" (catch)=\"onCamError($event)\"></ack-webcam>\n    <br>\n    <label for=\"name\">Name</label>\n    <input type=\"text\" placeholder=\"\" name=\"name\" class=\"form-control\" required [(ngModel)]='user.name' #name='ngModel'>\n    <div class=\"text-danger\" *ngIf='name.errors && name.touched && name.dirty'>\n      <span *ngIf='name.errors.required'> * Name is required</span>\n    </div>\n    <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"submitName()\" *ngIf='!(name.errors)'>Submit Name</button>\n    <br><button class=\"btn btn-info btn-block btn-large\" (click)=\"genBase64()\" *ngIf='!(name.errors)'>Generate Base64</button>\n    <!-- <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"genPostData()\" *ngIf='!(name.errors)'>Submit</button> -->\n  </form>"
 
 /***/ }),
 
@@ -400,6 +400,7 @@ var user_service_1 = __webpack_require__("../../../../../src/app/services/user/u
 var router_1 = __webpack_require__("../../../router/esm5/router.js");
 // JSON CLASSES & INTERFACES
 var user_1 = __webpack_require__("../../../../../src/app/classes/user.ts");
+var timers_1 = __webpack_require__("../../../../timers-browserify/main.js");
 var template = "\n<ack-webcam\n  [(ref)]   = \"webcam\"\n  [options] = \"options\"\n  (success) = \"onCamSuccess($event)\"\n  (catch)   = \"onCamError($event)\"\n></ack-webcam>\n<button (click)=\"genBase64()\"> generate base64 </button>\n<button (click)=\"genPostData()\"> generate post data </button>\n";
 var LoginComponent = /** @class */ (function () {
     function LoginComponent(http, _router, _userService) {
@@ -408,17 +409,55 @@ var LoginComponent = /** @class */ (function () {
         this._userService = _userService;
         this.user = new user_1.User();
         this.serverMessage = '';
+        this.count = 0;
     }
-    LoginComponent.prototype.genBase64 = function () {
-        var _this = this;
-        this.webcam.getBase64()
-            .then(function (base) {
-            console.log(base);
-            _this._userService.sendJson({ data: base });
-            _this.base64 = base;
-        })
-            .catch(function (e) { return console.error(e); });
+    LoginComponent.prototype.submitName = function () {
+        console.log(this.user);
+        this._userService.submitName(this.user, function (res) {
+            if (res) {
+            }
+            else {
+            }
+        });
     };
+    LoginComponent.prototype._getBase64 = function (callback) {
+        this.webcam.getBase64().then(function (base) {
+            callback(base);
+        }).catch(function (err) {
+            throw err;
+        });
+    };
+    LoginComponent.prototype.getImages = function (size, callback) {
+        var _this = this;
+        var a = [];
+        var id = timers_1.setInterval(function () {
+            _this._getBase64(function (base) {
+                if (size <= 0) {
+                    // console.log(a.length);
+                    timers_1.clearInterval(id);
+                    callback(a);
+                }
+                else {
+                    size--;
+                    a.push(base);
+                }
+            });
+        }, 200);
+    };
+    LoginComponent.prototype.genBase64 = function () {
+        this.getImages(10, function (images) {
+            console.log(images.length);
+        });
+    };
+    // genBase64() {
+    //   this.webcam.getBase64()
+    //     .then(base => {
+    //       console.log(base);
+    //       // this._userService.sendJson({data: base});
+    //       this.base64 = base
+    //     })
+    //     .catch(e => console.error(e))
+    // }
     //get HTML5 FormData object and pretend to post to server
     LoginComponent.prototype.genPostData = function () {
         this.webcam.captureAsFormData({ fileName: 'file.jpg' })
@@ -431,19 +470,6 @@ var LoginComponent = /** @class */ (function () {
     LoginComponent.prototype.onCamError = function (err) { };
     LoginComponent.prototype.onCamSuccess = function () { };
     LoginComponent.prototype.ngOnInit = function () {
-    };
-    LoginComponent.prototype.login = function () {
-        var _this = this;
-        this._userService.loginUser(this.user, function (res) {
-            // if the login was successful continue to the dashboard
-            // else display the response the backend gave
-            if (res.success) {
-                _this._router.navigate(['dashboard']);
-            }
-            else {
-                _this.serverMessage = res.output.message;
-            }
-        });
     };
     LoginComponent = __decorate([
         core_1.Component({
@@ -515,19 +541,6 @@ var RegistrationComponent = /** @class */ (function () {
     }
     RegistrationComponent.prototype.ngOnInit = function () {
     };
-    RegistrationComponent.prototype.registerUser = function () {
-        var _this = this;
-        this._userService.registerUser(this.user, function (res) {
-            // if registration went successfully continue to dashboard
-            // else display the message the server gave
-            if (res.success) {
-                _this._router.navigateByUrl('/dashboard');
-            }
-            else if (res.output.message) {
-                _this.serverMessage = res.output.message;
-            }
-        });
-    };
     RegistrationComponent = __decorate([
         core_1.Component({
             selector: 'app-registration',
@@ -582,12 +595,8 @@ var UserService = /** @class */ (function () {
      */
     UserService.prototype._localAPIBuild = function (query) {
         return uriBuilder('', {
-            path: "api/" + query
+            path: "api/exp/" + query
         });
-    };
-    UserService.prototype.submitUser = function (user, formData, callback) {
-        var uri = this._localAPIBuild('submit-user');
-        // this._http.post(uri, user, formData).subscribe((response: IServerMessage<{ message: string }>) => callback(response));
     };
     /**
      * queries the backend if the user is currently logged in or not
@@ -597,33 +606,19 @@ var UserService = /** @class */ (function () {
         var uri = this._localAPIBuild('is-logged');
         this._http.get(uri).subscribe(function (response) { return callback(response); });
     };
-    /**
-     * register a user to the database
-     * @param {IUser} user user data to attempt to add to the database
-     */
-    UserService.prototype.registerUser = function (user, callback) {
-        var uri = this._localAPIBuild('register');
-        this._http.post(uri, user).subscribe(function (response) { return callback(response); });
-    };
-    /**
-     * login a user to the database
-     * @param user user data to attempt login
-     * @param callback processing to be done after backend response
-     */
-    UserService.prototype.loginUser = function (user, callback) {
-        var uri = this._localAPIBuild('login');
-        this._http.post(uri, user).subscribe(function (response) { return callback(response); });
-    };
     UserService.prototype.logoutUser = function (callback) {
         var uri = this._localAPIBuild('logout');
         this._http.get(uri).subscribe(function (response) { return callback(response); });
     };
-    UserService.prototype.sendJson = function (json) {
-        console.log('in send json');
-        var uri = this._localAPIBuild('testing');
-        this._http.post(uri, json).subscribe(function (response) {
-            console.log(response);
-            console.log(uri);
+    UserService.prototype.submitName = function (user, callback) {
+        var uri = this._localAPIBuild('find-user');
+        this._http.post(uri, user).subscribe(function (response) {
+            if (response) {
+                // verify user
+            }
+            else {
+                // add new user
+            }
         });
     };
     UserService = __decorate([
