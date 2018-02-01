@@ -19,6 +19,15 @@ def stringToImage(base64_string):
 def toRGB(image):
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
+def equalize(image):
+    # convert to yuv scale
+    img_yuv = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2YUV)
+    # equalize the histogram of the Y channel
+    img_yuv[:,:,0] = cv2.equalizeHist(img_yuv[:,:,0])
+    # convert the YUV image back to RGB format
+    img_output = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
+    return img_output
+
 
 def processBase64File(base64File):
     with open(base64File,'rt') as in_file:
@@ -34,6 +43,7 @@ def processBase64String(base64String):
     i = base64String.find(',')
     base64String = base64String[i+1:] 
     base64Image = stringToImage(base64String)
+    base64Image = equalize(base64Image)
     base64Image = toRGB(base64Image)
     base64Gray = cv2.cvtColor(base64Image,cv2.COLOR_BGR2GRAY)
     return base64Gray
@@ -72,6 +82,10 @@ def cleanForm(formData, imageCount):
         tempStr = curStr + '[' + str(idx) + ']'
         a.append(formData[tempStr])
     return a
+
+def getIQR(arr):
+    q75, q25 = np.percentile(arr, [75 ,25])
+    return q25, q75, q75-q25
 
 
 @app.route('/api/ml/build', methods=['POST'])
@@ -131,8 +145,9 @@ def verifyUser():
     recognizer.read('trainer/trainer.yml')
 
     # set up success counter
-    counter = 0
-    trials = 0.0
+    #counter = 0
+    #trials = 0.0
+    ConfidenceArray =[]
 
     # define success - starts as False
     success = False
@@ -153,16 +168,37 @@ def verifyUser():
 
         # only if we have a certain degree of confidence we add to avlidation counter
             try:
-                if confidence < 45:
-                    counter = counter+1
+                #if confidence < 45:
+                ConfidenceArray.append(confidence)
+                #counter = counter+1
             except:
-                return jsonify({'success': False})
-        trials = trials + 1
+                pass
+                #return jsonify({'success': False})
+        #trials = trials + 1
     
     # if 3 out of 5 images are identified as user success is True
-    if counter/trials >= 0.6:
+   
+    try:
+        q25, q75, iqr = getIQR(ConfidenceArray)
+        if len(ConfidenceArray) > 2:
+            filtered = [conf for conf in ConfidenceArray if (q25 - 1.5 * iqr < conf < q75 + 1.5 * iqr)]
+            confidence = np.mean(filtered)
+    except:
+        print("not enough images")
+        return jsonify({'success': False})
+
+    print("Confidence: " + str(confidence))
+    #print(filtered)
+
+    if confidence < 45:
         success =True
     print(success)
+
+    
+    
+    # if counter/trials >= 0.6:
+    #     success =True
+    # print(success)
 
 
     return jsonify({'success': success})
