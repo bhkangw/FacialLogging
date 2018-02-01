@@ -5,6 +5,7 @@ import * as path from 'path';
 
 // CONTROLLERS
 import { LoginRegController } from './../controllers/login-reg.controller';
+import { DevController } from '../controllers/dev.controller';
 
 
 
@@ -17,6 +18,9 @@ export const routes = (app: express.Express) => {
     app.post('/api/exp/add-user', (req, res) => LoginRegController.addUser(req, res));
     app.post('/api/exp/verify', (req, res) => LoginRegController.verifyUser(req, res));
     app.get('/api/exp/logout', (req, res) => LoginRegController.clearSessionFor(req, res, '_id'));
+
+    // Dev Routes
+    app.post('/api/exp/dev/login', (req, res) => DevController.login(req, res));
 
     // Base route and serves frontend
     app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../../../client/WebApp/dist/index.html')));

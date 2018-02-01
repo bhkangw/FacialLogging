@@ -11,6 +11,7 @@ import { User } from '../../classes/user';
 // SERVICE DEPENDENCIES
 import * as uriBuilder from 'build-url';
 import { ILoginContainer } from '../../interfaces/login-container';
+import { BehaviorSubject } from 'Rxjs';
 
 /**
  * User Service class is used to do api classes to the backend
@@ -19,11 +20,16 @@ import { ILoginContainer } from '../../interfaces/login-container';
 @Injectable()
 export class UserService {
 
+
+  loggedUser: BehaviorSubject<IUser>;
+
   /**
    * base constructor
    * @param _http injectable
    */
-  constructor(private _http: HttpClient) { }
+  constructor(private _http: HttpClient) {
+    this.loggedUser = new BehaviorSubject(null);
+  }
 
 
   /**
@@ -63,6 +69,16 @@ export class UserService {
     });
   }
 
+  loginRaw(user: IUser, callback: (res: IServerMessage<IUser>) => void): void {
+    const uri = this._localAPIBuild('dev/login');
+    this._http.post(uri, user).subscribe((response: IServerMessage<IUser>) => {
+      if (response.success) {
+        this.loggedUser.next(response.output);
+      }
+      callback(response);
+    });
+  }
+
   /**
    * verifies a user to the backend
    * @param container user name and images array to be sent to the backend
@@ -71,6 +87,9 @@ export class UserService {
   verifyUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`verify`);
     this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
+      if (response.success) {
+        this.loggedUser.next(response.output);
+      }
       callback(response);
     });
   }
@@ -82,6 +101,9 @@ export class UserService {
   newUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`add-user`);
     this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
+      if (response.success) {
+        this.loggedUser.next(response.output);
+      }
       callback(response);
     });
   }
