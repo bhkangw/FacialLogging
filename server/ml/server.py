@@ -28,6 +28,14 @@ def equalize(image):
     img_output = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
     return img_output
 
+# create a CLAHE object (Arguments are optional).
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+
+def localequalize(image):
+    return clahe.apply(np.array(image))
+
+
+
 
 def processBase64File(base64File):
     with open(base64File,'rt') as in_file:
@@ -43,9 +51,10 @@ def processBase64String(base64String):
     i = base64String.find(',')
     base64String = base64String[i+1:] 
     base64Image = stringToImage(base64String)
-    base64Image = equalize(base64Image)
+    #base64Image = equalize(base64Image)
     base64Image = toRGB(base64Image)
     base64Gray = cv2.cvtColor(base64Image,cv2.COLOR_BGR2GRAY)
+    base64Image = localequalize(base64Gray)
     return base64Gray
 
 
@@ -190,7 +199,7 @@ def verifyUser():
     print("Confidence: " + str(confidence))
     #print(filtered)
 
-    if confidence < 45:
+    if confidence < 48:
         success =True
     print(success)
 
