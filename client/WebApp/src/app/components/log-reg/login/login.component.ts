@@ -13,17 +13,7 @@ import { IUser } from '../../../interfaces/user';
 import { setInterval, clearInterval } from 'timers';
 import { LoginContainer } from '../../../classes/login-container';
 import { IServerMessage } from '../../../interfaces/server-message';
-
-const template = `
-<ack-webcam
-  [(ref)]   = "webcam"
-  [options] = "options"
-  (success) = "onCamSuccess($event)"
-  (catch)   = "onCamError($event)"
-></ack-webcam>
-<button (click)="genBase64()"> generate base64 </button>
-<button (click)="genPostData()"> generate post data </button>
-`
+import { Input } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -31,8 +21,7 @@ const template = `
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-
-  webcam: WebCamComponent; // will be populated by <ack-webcam [(ref)]="webcam">
+  @Input() webcam;
   base64: string;
   user: IUser;
   serverMessage: string;
@@ -57,12 +46,12 @@ export class LoginComponent implements OnInit {
             this._router.navigate(['dashboard']);
             console.log('verified', JSON.stringify(res, null, 4));
           });
-        })
+        });
       } else {
         this.getImages(25, (images) => { // if unsuccessful send 25 images to add new user
           loginContainer.images = images;
           this._userService.newUser(loginContainer, (res) => {
-            if(res.success){
+            if (res.success) {
               this._router.navigate(['dashboard']);
             }
             console.log('verified', JSON.stringify(res, null, 4));
@@ -104,9 +93,29 @@ export class LoginComponent implements OnInit {
     }, 200);
   }
 
+  rawLogin() {
+    this._userService.loginRaw(this.user, (res) => {
+      if (res.success) {
+        this._router.navigate(['dashboard']);
+      } else {
+        this.serverMessage = 'dev login failed, check logs';
+      }
+    });
+  }
+
   onCamError(err) { }
 
-  onCamSuccess() { }
+  onCamSuccess() {
+    this._userService.ensureUserIsLoggedIn((res) => {
+
+      // if the user is currently logged in the user should be sent
+      // to the main app
+      if (res.success) {
+        this._router.navigate(['dashboard']);
+      } else {
+      }
+    });
+  }
 
   ngOnInit() {
   }

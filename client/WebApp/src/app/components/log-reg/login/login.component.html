@@ -10,4 +10,5 @@
       <span *ngIf='name.errors.required'> * Name is required</span>
     </div>
     <br><button class="btn btn-primary btn-block btn-large" (click)="submitName()" *ngIf='!(name.errors)'>Submit Name</button>
+    <br><button class="btn btn-primary btn-block btn-large" (click)="rawLogin()" *ngIf='!(name.errors)'>Dev Login</button>
   </form>
