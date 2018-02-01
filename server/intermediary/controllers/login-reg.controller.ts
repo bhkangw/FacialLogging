@@ -11,6 +11,7 @@ import { IImageContainer, ImageContainer } from '../json-formats/backend-interfa
 
 // MONGO INTERFACES
 import { IUserModel } from '../json-formats/mongo-interfaces/user.mongo';
+import { MICROSERVICE } from '../config/init';
 
 
 // wraps all currently used models in a quick lookup object
@@ -65,32 +66,50 @@ export const LoginRegController = {
     },
 
     /**
-     * registers a user
+     * registers a user. sends the given images to the python backend
      */
     addUser: (req: express.Request, res: express.Response) => {
-        const container: IImageContainer = new ImageContainer();
-        container.images = req.body.images;
-        HttpClient.post('http://192.168.1.192:1234/api/ml/build', { form: container }, (err, response, body) => {
-            body = JSON.parse(body);
-            const newUser = new models.User({ modelYML: body.modelYML, name: req.body.name });
-            newUser.save((err, product) => {
-                if (err) {
-                    res.json(new ServerMessage(false, err));
-                    throw err;
-                } else {
-                    req.session._id = product._id;
-                    res.json(new ServerMessage(true, product));
-                }
-            });
+
+        // build a simple container that will hold the image array
+        const container: IImageContainer = new ImageContainer(req.body.images);
+
+        // sends the post request to the python backend with the given images,
+        // requesting that there be made a new model profile
+        HttpClient.post(`${MICROSERVICE}api/ml/build`, { form: container }, (err, response, body) => {
+
+            // the python backend may send errors that will trigger the frontend to login,
+            // bug to later be fixed!
+            try {
+                body = JSON.parse(body);
+                const newUser = new models.User({ modelYML: body.modelYML, name: req.body.name });
+                newUser.save((err, product) => {
+                    if (err) {
+                        res.json(new ServerMessage(false, err));
+                        throw err;
+                    } else {
+                        req.session._id = product._id;
+                        res.json(new ServerMessage(true, product));
+                    }
+                });
+            } catch (e) {
+                console.log('error occured', e);
+            }
         });
     },
 
+    /**
+     * verifies a given users attempt, sends the given images to a python backend
+     */
     verifyUser: (req: express.Request, res: express.Response) => {
-        const attemptsContainer: IImageContainer = req.body.images;
+        const attemptsContainer: IImageContainer = new ImageContainer(req.body.images);
+
+        // finds the user, if the user exists verify,
+        // route impossible to be no user due to the api call
+        // that happens before calling this in the frontend
         models.User.findOne({ name: req.body.name }, (err, user) => {
-            HttpClient.post('http://192.168.1.192:1234/api/ml/verify', {
+            HttpClient.post(`${MICROSERVICE}/api/ml/verify`, {
                 form: {
-                    images: attemptsContainer,
+                    images: attemptsContainer.images,
                     modelYML: user.modelYML
                 }
             }, (err, response, body) => {

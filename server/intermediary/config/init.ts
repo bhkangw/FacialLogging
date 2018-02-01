@@ -34,7 +34,10 @@ server.use(session({
 server.use(logger);
 
 // port declared here
-export const PORT = 1235;
+export const PORT = 8000;
+
+// facial recognition microservice url
+export const MICROSERVICE = 'http://192.168.1.192:1234/';
 
 // app is the total express instantiated object
 export const app = server;
