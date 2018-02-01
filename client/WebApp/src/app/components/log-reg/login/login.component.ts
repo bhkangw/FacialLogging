@@ -39,6 +39,9 @@ export class LoginComponent implements OnInit {
     };
   }
 
+  /**
+   * adds dots to the end of message to signify processing
+   */
   dotify() {
     let c = 0;
     const id = setInterval(() => {
@@ -67,8 +70,12 @@ export class LoginComponent implements OnInit {
       loginContainer.name = this.user.name;
       console.log(res);
       if (res.success) {
-        this.getImages(5, (images) => { // if successful send 5 images for verification
-          this.serverMessage = 'verifying its you';
+        // if user found send 5 images for verification
+        // display message for verification with dots
+        // if success, log verified and navigate to dashboard
+        // else, display failed message and try again
+        this.getImages(5, (images) => {
+          this.serverMessage = "verifying it's you";
           loginContainer.images = images;
           this._userService.verifyUser(loginContainer, (data) => {
             console.log('verified', JSON.stringify(data, null, 4));
@@ -82,6 +89,8 @@ export class LoginComponent implements OnInit {
           });
         });
       } else {
+        // if no user found display message for registration and model building
+        // set timer for 6 seconds for user to hold face still
         let c = 6;
         const id = setInterval(() => {
           if (c <= 1) {
@@ -94,7 +103,9 @@ export class LoginComponent implements OnInit {
             this.serverMessage = `hold still for for ${c} seconds while we examine you`;
           }
         }, 1000);
-        this.getImages(25, (images) => { // if unsuccessful send 25 images to add new user
+        // if unsuccessful send 25 images to add new user
+        // upon completion navigate to dashboard
+        this.getImages(25, (images) => {
           loginContainer.images = images;
           this._userService.newUser(loginContainer, (res) => {
             if (res.success) {
@@ -138,6 +149,10 @@ export class LoginComponent implements OnInit {
     }, 200);
   }
 
+  /**
+     * FOR DEVELOPMENT USE ONLY. This route will automatically log any
+     * requests into an account, or create one accordingly
+     */
   rawLogin() {
     this._userService.loginRaw(this.user, (res) => {
       if (res.success) {

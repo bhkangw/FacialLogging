@@ -312,7 +312,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/components/log-reg/log-reg.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container\">\n  <app-login></app-login>\n</div>"
+module.exports = "<div class=\"container\">\n  <div class=\"row\">\n    <app-login [webcam]='webcam'></app-login>\n  </div>\n</div>"
 
 /***/ }),
 
@@ -342,14 +342,6 @@ var LogRegComponent = /** @class */ (function () {
         this._router = _router;
     }
     LogRegComponent.prototype.ngOnInit = function () {
-        var _this = this;
-        this._userService.ensureUserIsLoggedIn(function (res) {
-            // if the user is currently logged in the user should be sent
-            // to the main app
-            if (res.success) {
-                _this._router.navigate(['dashboard']);
-            }
-        });
     };
     LogRegComponent = __decorate([
         core_1.Component({
@@ -374,7 +366,7 @@ exports = module.exports = __webpack_require__("../../../../css-loader/lib/css-b
 
 
 // module
-exports.push([module.i, ".web-size {\r\n    width: 500px;\r\n}", ""]);
+exports.push([module.i, ".web-size {\n    width: 500px;\n}", ""]);
 
 // exports
 
@@ -387,7 +379,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/components/log-reg/login/login.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"text-center align-text-center\">\r\n  <h1 class=\"display-3\">Face Login</h1>\r\n\r\n  <form class=\"form-group mt-2\">\r\n    <ack-webcam [(ref)]=\"webcam\" [options]=\"options\" (success)=\"onCamSuccess($event)\" (catch)=\"onCamError($event)\" class=\"web-size\"></ack-webcam>\r\n    <br>\r\n    <h4>{{serverMessage}}{{dots}}</h4>\r\n    <label for=\"name\">Name</label>\r\n    <input type=\"text\" placeholder=\"\" name=\"name\" class=\"form-control\" required [(ngModel)]='user.name' #name='ngModel'>\r\n    <div class=\"text-danger\" *ngIf='name.errors && name.touched && name.dirty'>\r\n      <span *ngIf='name.errors.required'> * Name is required</span>\r\n    </div>\r\n    <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"submitName()\" *ngIf='!(name.errors)'>Login</button>\r\n  </form>"
+module.exports = "<div class=\"text-center align-text-center\">\n  <h1 class=\"display-3\">Face Login</h1>\n\n  <form class=\"form-group mt-2\">\n    <ack-webcam [(ref)]=\"webcam\" [options]=\"options\" (success)=\"onCamSuccess($event)\" (catch)=\"onCamError($event)\" class=\"web-size\"></ack-webcam>\n    <br>\n    <h4>{{serverMessage}}{{dots}}</h4>\n    <label for=\"name\">Name</label>\n    <input type=\"text\" placeholder=\"\" name=\"name\" class=\"form-control\" required [(ngModel)]='user.name' #name='ngModel'>\n    <div class=\"text-danger\" *ngIf='name.errors && name.touched && name.dirty'>\n      <span *ngIf='name.errors.required'> * Name is required</span>\n    </div>\n    <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"submitName()\" *ngIf='!(name.errors)'>Submit Name</button>\n    <br><button class=\"btn btn-primary btn-block btn-large\" (click)=\"rawLogin()\" *ngIf='!(name.errors)'>Dev Login</button>\n  </form>"
 
 /***/ }),
 
@@ -416,7 +408,7 @@ var router_1 = __webpack_require__("../../../router/esm5/router.js");
 var user_1 = __webpack_require__("../../../../../src/app/classes/user.ts");
 var timers_1 = __webpack_require__("../../../../timers-browserify/main.js");
 var login_container_1 = __webpack_require__("../../../../../src/app/classes/login-container.ts");
-var template = "\n<ack-webcam\n  [(ref)]   = \"webcam\"\n  [options] = \"options\"\n  (success) = \"onCamSuccess($event)\"\n  (catch)   = \"onCamError($event)\"\n></ack-webcam>\n<button (click)=\"genBase64()\"> generate base64 </button>\n<button (click)=\"genPostData()\"> generate post data </button>\n";
+var core_2 = __webpack_require__("../../../core/esm5/core.js");
 var LoginComponent = /** @class */ (function () {
     function LoginComponent(http, _router, _userService) {
         this.http = http;
@@ -492,10 +484,8 @@ var LoginComponent = /** @class */ (function () {
                 }, 1000);
                 _this.getImages(25, function (images) {
                     loginContainer.images = images;
-                    _this._userService.newUser(loginContainer, function (data) {
-                        console.log('user added');
-                        console.log(data);
-                        if (data.success) {
+                    _this._userService.newUser(loginContainer, function (res) {
+                        if (res.success) {
                             _this._router.navigate(['dashboard']);
                         }
                     });
@@ -535,10 +525,36 @@ var LoginComponent = /** @class */ (function () {
             });
         }, 200);
     };
+    LoginComponent.prototype.rawLogin = function () {
+        var _this = this;
+        this._userService.loginRaw(this.user, function (res) {
+            if (res.success) {
+                _this._router.navigate(['dashboard']);
+            }
+            else {
+                _this.serverMessage = 'dev login failed, check logs';
+            }
+        });
+    };
     LoginComponent.prototype.onCamError = function (err) { };
-    LoginComponent.prototype.onCamSuccess = function () { };
+    LoginComponent.prototype.onCamSuccess = function () {
+        var _this = this;
+        this._userService.ensureUserIsLoggedIn(function (res) {
+            // if the user is currently logged in the user should be sent
+            // to the main app
+            if (res.success) {
+                _this._router.navigate(['dashboard']);
+            }
+            else {
+            }
+        });
+    };
     LoginComponent.prototype.ngOnInit = function () {
     };
+    __decorate([
+        core_2.Input(),
+        __metadata("design:type", Object)
+    ], LoginComponent.prototype, "webcam", void 0);
     LoginComponent = __decorate([
         core_1.Component({
             selector: 'app-login',
@@ -574,6 +590,7 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var http_1 = __webpack_require__("../../../common/esm5/http.js");
 // SERVICE DEPENDENCIES
 var uriBuilder = __webpack_require__("../../../../build-url/dist/build-url.js");
+var Rxjs_1 = __webpack_require__("../../../../Rxjs/Rx.js");
 /**
  * User Service class is used to do api classes to the backend
  * Contains User data and other information
@@ -585,6 +602,7 @@ var UserService = /** @class */ (function () {
      */
     function UserService(_http) {
         this._http = _http;
+        this.loggedUser = new Rxjs_1.BehaviorSubject(null);
     }
     /**
      * build a uri based on the current classes requests
@@ -619,14 +637,28 @@ var UserService = /** @class */ (function () {
             callback(response);
         });
     };
+    UserService.prototype.loginRaw = function (user, callback) {
+        var _this = this;
+        var uri = this._localAPIBuild('dev/login');
+        this._http.post(uri, user).subscribe(function (response) {
+            if (response.success) {
+                _this.loggedUser.next(response.output);
+            }
+            callback(response);
+        });
+    };
     /**
      * verifies a user to the backend
      * @param container user name and images array to be sent to the backend
      * @param callback call passes backend results
      */
     UserService.prototype.verifyUser = function (container, callback) {
+        var _this = this;
         var uri = this._localAPIBuild("verify");
         this._http.post(uri, container).subscribe(function (response) {
+            if (response.success) {
+                _this.loggedUser.next(response.output);
+            }
             callback(response);
         });
     };
@@ -636,8 +668,12 @@ var UserService = /** @class */ (function () {
      * @param callback call passes backend results
      */
     UserService.prototype.newUser = function (container, callback) {
+        var _this = this;
         var uri = this._localAPIBuild("add-user");
         this._http.post(uri, container).subscribe(function (response) {
+            if (response.success) {
+                _this.loggedUser.next(response.output);
+            }
             callback(response);
         });
     };
