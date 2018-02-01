@@ -5,6 +5,7 @@ import base64
 import numpy as np
 from PIL import Image
 from pprint import pprint
+import csv
 
 app = Flask(__name__)
 
@@ -54,7 +55,7 @@ def processBase64String(base64String):
     #base64Image = equalize(base64Image)
     base64Image = toRGB(base64Image)
     base64Gray = cv2.cvtColor(base64Image,cv2.COLOR_BGR2GRAY)
-    base64Image = localequalize(base64Gray)
+    base64Gray = localequalize(base64Gray)
     return base64Gray
 
 
@@ -192,14 +193,22 @@ def verifyUser():
         if len(ConfidenceArray) > 2:
             filtered = [conf for conf in ConfidenceArray if (q25 - 1.5 * iqr < conf < q75 + 1.5 * iqr)]
             confidence = np.mean(filtered)
+            print("Confidence: " + str(confidence))
+            with open ('scores.csv','a') as score:
+                writer = csv.writer(score,delimiter=',')
+                writer.writerow((str(confidence), str(confidence<=50)))
+
+
+
+
     except:
         print("not enough images")
         return jsonify({'success': False})
 
-    print("Confidence: " + str(confidence))
-    #print(filtered)
+    
 
-    if confidence < 48:
+
+    if confidence < 50:
         success =True
     print(success)
 
