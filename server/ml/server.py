@@ -226,5 +226,5 @@ def verifyUser():
 
 
 
-
-app.run(host='0.0.0.0', port=1234,debug=True)
+app.run(port=1234 ,debug=True)
+# app.run(host='0.0.0.0', port=1234,debug=True)

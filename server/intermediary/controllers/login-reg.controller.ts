@@ -107,7 +107,7 @@ export const LoginRegController = {
         // route impossible to be no user due to the api call
         // that happens before calling this in the frontend
         models.User.findOne({ name: req.body.name }, (err, user) => {
-            HttpClient.post(`${MICROSERVICE}/api/ml/verify`, {
+            HttpClient.post(`${MICROSERVICE}api/ml/verify`, {
                 form: {
                     images: attemptsContainer.images,
                     modelYML: user.modelYML
@@ -121,7 +121,7 @@ export const LoginRegController = {
                     }
                     res.json(new ServerMessage(body.success, null));
                 } catch (e) {
-                    console.log('error occurred', e);
+                    console.log('error occurred', e);``
                     res.json(new ServerMessage(false, null));
                 }
             });
