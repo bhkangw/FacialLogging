@@ -34,7 +34,7 @@ server.use(session({
 server.use(logger);
 
 // port declared here
-export const PORT = 8000;
+export const PORT = 1235;
 
 // app is the total express instantiated object
 export const app = server;

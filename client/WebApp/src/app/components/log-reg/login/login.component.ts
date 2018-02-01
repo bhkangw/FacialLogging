@@ -13,17 +13,7 @@ import { IUser } from '../../../interfaces/user';
 import { setInterval, clearInterval } from 'timers';
 import { LoginContainer } from '../../../classes/login-container';
 import { IServerMessage } from '../../../interfaces/server-message';
-
-const template = `
-<ack-webcam
-  [(ref)]   = "webcam"
-  [options] = "options"
-  (success) = "onCamSuccess($event)"
-  (catch)   = "onCamError($event)"
-></ack-webcam>
-<button (click)="genBase64()"> generate base64 </button>
-<button (click)="genPostData()"> generate post data </button>
-`
+import { Input } from '@angular/core';
 
 @Component({
   selector: 'app-login',
@@ -31,41 +21,85 @@ const template = `
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-
-  webcam: WebCamComponent; // will be populated by <ack-webcam [(ref)]="webcam">
+  @Input() webcam;
   base64: string;
   user: IUser;
   serverMessage: string;
   count: number;
+  dots: string;
+  options: {};
   constructor(public http: Http, private _router: Router, private _userService: UserService) {
     this.user = new User();
     this.serverMessage = '';
     this.count = 0;
+    this.dots = '';
+    this.options = {
+      width: 500,
+      height: 500
+    };
+  }
+
+  dotify() {
+    let c = 0;
+    const id = setInterval(() => {
+      c++;
+      const dots = c % 3;
+      let tmpStr = '';
+      for (let i = 0; i < dots; i++) {
+        tmpStr += '.';
+      }
+      this.dots = tmpStr;
+    }, 800);
+    return id;
   }
 
   /**
    * when a user submits their name, return success or unsuccessful if found
    */
   submitName() {
+    let idDots = this.dotify();
+    this.serverMessage = 'trying to find you';
+    clearInterval(idDots);
+    this.dots = '';
+    idDots = this.dotify();
     this._userService.submitName(this.user, (res) => {
       const loginContainer = new LoginContainer();
       loginContainer.name = this.user.name;
+      console.log(res);
       if (res.success) {
         this.getImages(5, (images) => { // if successful send 5 images for verification
+          this.serverMessage = 'verifying its you';
           loginContainer.images = images;
-          this._userService.verifyUser(loginContainer, (res) => {
-            this._router.navigate(['dashboard']);
-            console.log('verified', JSON.stringify(res, null, 4));
+          this._userService.verifyUser(loginContainer, (data) => {
+            console.log('verified', JSON.stringify(data, null, 4));
+            if (data.success) {
+              this._router.navigate(['dashboard']);
+            } else {
+              clearInterval(idDots);
+              this.dots = '';
+              this.serverMessage = 'failed try again?';
+            }
           });
-        })
+        });
       } else {
+        let c = 6;
+        const id = setInterval(() => {
+          if (c <= 1) {
+            clearInterval(id);
+          }
+          c--;
+          if (c <= 1) {
+            this.serverMessage = `building a personal model for you`;
+          } else {
+            this.serverMessage = `hold still for for ${c} seconds while we examine you`;
+          }
+        }, 1000);
         this.getImages(25, (images) => { // if unsuccessful send 25 images to add new user
           loginContainer.images = images;
           this._userService.newUser(loginContainer, (res) => {
-            if(res.success){
+            if (res.success) {
               this._router.navigate(['dashboard']);
             }
-            console.log('verified', JSON.stringify(res, null, 4));
           });
         });
       }
@@ -104,9 +138,29 @@ export class LoginComponent implements OnInit {
     }, 200);
   }
 
+  rawLogin() {
+    this._userService.loginRaw(this.user, (res) => {
+      if (res.success) {
+        this._router.navigate(['dashboard']);
+      } else {
+        this.serverMessage = 'dev login failed, check logs';
+      }
+    });
+  }
+
   onCamError(err) { }
 
-  onCamSuccess() { }
+  onCamSuccess() {
+    this._userService.ensureUserIsLoggedIn((res) => {
+
+      // if the user is currently logged in the user should be sent
+      // to the main app
+      if (res.success) {
+        this._router.navigate(['dashboard']);
+      } else {
+      }
+    });
+  }
 
   ngOnInit() {
   }
