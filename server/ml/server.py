@@ -5,6 +5,7 @@ import base64
 import numpy as np
 from PIL import Image
 from pprint import pprint
+import csv
 
 app = Flask(__name__)
 
@@ -18,6 +19,23 @@ def stringToImage(base64_string):
 
 def toRGB(image):
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+
+def equalize(image):
+    # convert to yuv scale
+    img_yuv = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2YUV)
+    # equalize the histogram of the Y channel
+    img_yuv[:,:,0] = cv2.equalizeHist(img_yuv[:,:,0])
+    # convert the YUV image back to RGB format
+    img_output = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
+    return img_output
+
+# create a CLAHE object (Arguments are optional).
+clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+
+def localequalize(image):
+    return clahe.apply(np.array(image))
+
+
 
 
 def processBase64File(base64File):
@@ -34,8 +52,10 @@ def processBase64String(base64String):
     i = base64String.find(',')
     base64String = base64String[i+1:] 
     base64Image = stringToImage(base64String)
+    #base64Image = equalize(base64Image)
     base64Image = toRGB(base64Image)
     base64Gray = cv2.cvtColor(base64Image,cv2.COLOR_BGR2GRAY)
+    base64Gray = localequalize(base64Gray)
     return base64Gray
 
 
@@ -72,6 +92,10 @@ def cleanForm(formData, imageCount):
         tempStr = curStr + '[' + str(idx) + ']'
         a.append(formData[tempStr])
     return a
+
+def getIQR(arr):
+    q75, q25 = np.percentile(arr, [75 ,25])
+    return q25, q75, q75-q25
 
 
 @app.route('/api/ml/build', methods=['POST'])
@@ -131,8 +155,9 @@ def verifyUser():
     recognizer.read('trainer/trainer.yml')
 
     # set up success counter
-    counter = 0
-    trials = 0.0
+    #counter = 0
+    #trials = 0.0
+    ConfidenceArray =[]
 
     # define success - starts as False
     success = False
@@ -152,14 +177,46 @@ def verifyUser():
             print(confidence)
 
         # only if we have a certain degree of confidence we add to avlidation counter
-        if confidence < 50:
-            counter = counter+1
-        trials = trials + 1
+            try:
+                #if confidence < 45:
+                ConfidenceArray.append(confidence)
+                #counter = counter+1
+            except:
+                pass
+                #return jsonify({'success': False})
+        #trials = trials + 1
     
     # if 3 out of 5 images are identified as user success is True
-    if counter/trials >= 0.6:
+   
+    try:
+        q25, q75, iqr = getIQR(ConfidenceArray)
+        if len(ConfidenceArray) > 2:
+            filtered = [conf for conf in ConfidenceArray if (q25 - 1.5 * iqr < conf < q75 + 1.5 * iqr)]
+            confidence = np.mean(filtered)
+            print("Confidence: " + str(confidence))
+            with open ('scores.csv','a') as score:
+                writer = csv.writer(score,delimiter=',')
+                writer.writerow((str(confidence), str(confidence<=50)))
+
+
+
+
+    except:
+        print("not enough images")
+        return jsonify({'success': False})
+
+    
+
+
+    if confidence < 50:
         success =True
     print(success)
+
+    
+    
+    # if counter/trials >= 0.6:
+    #     success =True
+    # print(success)
 
 
     return jsonify({'success': success})
@@ -169,5 +226,5 @@ def verifyUser():
 
 
 
-
-app.run(host='0.0.0.0', port=1234,debug=True)
+app.run(port=1234 ,debug=True)
+# app.run(host='0.0.0.0', port=1234,debug=True)

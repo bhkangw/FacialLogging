@@ -18,10 +18,13 @@ const models = {
     User: mongoose.model<IUserModel>('user')
 };
 
-/**
- * master login and registration controller
- */
+
 export const DevController = {
+
+    /**
+     * FOR DEVELOPMENT USE ONLY. This route will automatically log any
+     * requests into an account, or create one occordingly
+     */
     login: (req: express.Request, res: express.Response) => {
         models.User.findOne({ name: req.body.name }, (err, user) => {
             if (err) {
