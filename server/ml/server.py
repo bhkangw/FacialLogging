@@ -152,8 +152,11 @@ def verifyUser():
             print(confidence)
 
         # only if we have a certain degree of confidence we add to avlidation counter
-        if confidence < 50:
-            counter = counter+1
+            try:
+                if confidence < 45:
+                    counter = counter+1
+            except:
+                return jsonify({'success': False})
         trials = trials + 1
     
     # if 3 out of 5 images are identified as user success is True
