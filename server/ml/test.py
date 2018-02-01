@@ -5,6 +5,9 @@ import base64
 import numpy as np
 from PIL import Image
 from pprint import pprint
+import pandas as pd
+
+import matplotlib.pyplot as plt
 
 # Take in base64 string and return PIL image
 def stringToImage(base64_string):
@@ -57,3 +60,33 @@ def processBase64String(base64String):
 
 
 processBase64File("brianBase64.txt")
+
+
+def getIQR(arr):
+    q75, q25 = np.percentile(arr, [75 ,25])
+    return q25, q75, q75-q25
+
+
+
+import pandas as pd
+df=pd.read_csv('scores.csv', sep=',',header=1)
+values = df.values[:,0]
+login = (df[df.iloc[:,1]=="True"].values[:,0])
+notlogin = (df[df.iloc[:,1]=="False"].values[:,0])
+
+print(np.mean(values), np.mean(login), np.mean(notlogin))
+print(np.std(values), np.std(login), np.std(notlogin))
+# plt.hist(values)
+# plt.show()
+
+q25, q75, iqr = getIQR(values)
+print(q25, q75, iqr)
+filtered = [el for el in values if (q25 - 1.5 * iqr < el < q75 + 1.5 * iqr)]
+print(filtered)
+
+print(np.mean(filtered), np.std(filtered))
+
+count = np.count_nonzero([el for el in filtered if el<50])
+print(count)
+print(len(filtered))
+print(28/37.0)
