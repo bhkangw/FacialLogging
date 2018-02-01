@@ -71,7 +71,7 @@ export class UserService {
   verifyUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`verify`);
     this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
-
+      callback(response);
     });
   }
   /**
@@ -82,7 +82,7 @@ export class UserService {
   newUser(container: ILoginContainer, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild(`add-user`);
     this._http.post(uri, container).subscribe((response: IServerMessage<IUser>) => {
-
+      callback(response);
     });
   }
 

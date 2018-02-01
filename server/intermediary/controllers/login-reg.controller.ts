@@ -94,9 +94,17 @@ export const LoginRegController = {
                     modelYML: user.modelYML
                 }
             }, (err, response, body) => {
-                body = JSON.parse(body);
-                console.log(body);
-                res.json(new ServerMessage(body.success, null));
+                try {
+                    body = JSON.parse(body);
+                    console.log(body);
+                    if (body.success) {
+                        req.session._id = user._id;
+                    }
+                    res.json(new ServerMessage(body.success, null));
+                } catch (e) {
+                    console.log('error occurred', e);
+                    res.json(new ServerMessage(false, null));
+                }
             });
         });
     },
