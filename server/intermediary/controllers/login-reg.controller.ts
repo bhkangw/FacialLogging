@@ -119,7 +119,9 @@ export const LoginRegController = {
                     if (body.success) {
                         user.modelYML = body.modelYML;
                         user.save((err, product) => {
+                            console.log(product);
                             console.log('user was saved with data above')
+                            console.log(err);
                         })
                         req.session._id = user._id;
                     }
