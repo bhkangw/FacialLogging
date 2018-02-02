@@ -69,6 +69,11 @@ export class UserService {
     });
   }
 
+  /**
+   * FOR DEVELOPMENT USE ONLY. This route will automatically log any requests into an account, or create one accordingly
+   * @param user user info for registration
+   * @param callback callback passes backend results
+   */
   loginRaw(user: IUser, callback: (res: IServerMessage<IUser>) => void): void {
     const uri = this._localAPIBuild('dev/login');
     this._http.post(uri, user).subscribe((response: IServerMessage<IUser>) => {
