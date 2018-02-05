@@ -27,7 +27,7 @@ is install on your local machine
 ## Architecture
 - Implemented in the MEAN MVVC Architecture
 - Express is used as a proxy to the Python machine learning microservice that generates profiles and validates users. This architecture allows easy scalability due to how the microservice is setup.
-- More info in this presentation [here](/#)
+- More info in this presentation [here](https://github.com/EmilChoparinov/FacialLogging/#)
 
 ### Screenshots
 
