@@ -29,11 +29,11 @@ is install on your local machine
 - Express is used as a proxy to the Python machine learning microservice that generates profiles and validates users. This architecture allows easy scalability due to how the microservice is setup.
 - More info in this presentation [here](https://github.com/EmilChoparinov/FacialLogging/#)
 
-#
+###
 
 This chart represents the logic happening between Angular, the Express proxy, and Flask:
 
-    <img src="https://i.imgur.com/mdqFSuz.png" alt="login confirm" width=400>
+<img src="https://i.imgur.com/mdqFSuz.png" alt="login confirm" width=400>
 
 ### Screenshots
 
