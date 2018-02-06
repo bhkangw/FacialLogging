@@ -25,9 +25,12 @@ is install on your local machine
 4. install the requirements from **r.txt** using the command: `pip install -r r.txt`
 
 ## Architecture
-- Implemented in the MEAN MVVC Architecture
+- Implemented in the MEAN MVVC Architecture with a Flask microservice for OpenCV
 - Express is used as a proxy to the Python machine learning microservice that generates profiles and validates users. This architecture allows easy scalability due to how the microservice is setup.
 - More info in this presentation [here](https://github.com/EmilChoparinov/FacialLogging/#)
+This chart represents the logic happening between Angular, the Express proxy, and Flask:
+
+    <img src="https://i.imgur.com/mdqFSuz.png" alt="login confirm" width=400>
 
 ### Screenshots
 
