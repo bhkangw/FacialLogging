@@ -1,5 +1,5 @@
 # A Facial Login Registration Implementation
-FaceLogin is a login and registration app that uses facial recognition as a form of validation. The face recognition is done within the OpenCV framework is done so by using the Python library OpenCV.
+FaceLogin is a login and registration app that uses facial recognition as a form of validation. The face recognition is done within the OpenCV framework in Python.
 
 ## Setup
 1. Clone this repository on your local machine:
